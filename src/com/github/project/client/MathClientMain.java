@@ -6,6 +6,8 @@ import java.net.Socket;
 import java.io.*;
 import java.util.*;
 
+import com.github.project.core.CalculationRequest;
+
 /**
  * This is the main class of the client-side program. 
  * 
@@ -22,7 +24,7 @@ public class MathClientMain
 		Socket socket = null;
 		
 		int clientPort = 54321;
-		
+	
 		try 
 		{
 			socket = new Socket("localhost", clientPort);
@@ -34,15 +36,16 @@ public class MathClientMain
 		}
 		try
 		{
-			PrintWriter pr = new PrintWriter(socket.getOutputStream());
-			pr.println("working");
-			pr.flush();
+			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+		
+			CalculationRequest cr = new CalculationRequest("working");
+			oos.writeObject(cr);
 			
-			InputStreamReader in = new InputStreamReader(socket.getInputStream());
-			BufferedReader bf = new BufferedReader(in);
-			
-			String str = bf.readLine();
-			System.out.println("server:" + str);
+//			InputStreamReader in = new InputStreamReader(socket.getInputStream());
+//			BufferedReader bf = new BufferedReader(in);
+//			
+//			String str = bf.readLine();
+//			System.out.println("server:" + str);
 			
 		}
 		catch(Exception e)

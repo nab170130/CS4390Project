@@ -92,7 +92,9 @@ public class ProcessingQueue implements Runnable
 			{
 				try
 				{
-					wait();
+					synchronized(this) {
+						wait();
+					}
 				}
 				catch(InterruptedException ex)
 				{
