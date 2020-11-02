@@ -53,8 +53,14 @@ public class MathClientMain
 			
 		}
 		
-		
-		
-		
+		// Temporarily added to maintain connection test.
+		try
+		{
+			Thread.sleep(10000);
+		}
+		catch(Exception ex)
+		{
+			
+		}
 	}
 }

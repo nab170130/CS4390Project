@@ -1,6 +1,7 @@
 package com.github.project.server;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 
@@ -27,14 +28,16 @@ public class ConnectionHandler implements Runnable
 	public void run()
 	{
 		ProcessingQueue processingQueue = ProcessingQueue.getInstance();
-		ObjectInputStream requestReader;
+		ObjectInputStream requestReader = null;
 		
 		try
 		{
-			requestReader = new ObjectInputStream(connectionSocket.getInputStream());
+			InputStream socketInputStream = connectionSocket.getInputStream();
+			requestReader = new ObjectInputStream(socketInputStream);
 		}
 		catch(IOException ex)
 		{
+			ex.printStackTrace();
 			return;
 		}
 		
@@ -47,11 +50,11 @@ public class ConnectionHandler implements Runnable
 			}
 			catch(ClassNotFoundException ex)
 			{
-				
+				break;
 			}
 			catch(IOException ex)
 			{
-				
+				break;
 			}
 		}
 		
