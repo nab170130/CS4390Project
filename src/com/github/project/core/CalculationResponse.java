@@ -13,4 +13,23 @@ import java.io.Serializable;
 public class CalculationResponse implements Serializable
 {
 	public static final long serialVersionUID = 1L;
+	
+	private double calculationResult;
+	private String calculationErrorDesc;
+	
+	public double getCalculationResult()
+	{
+		return calculationResult;
+	}
+	
+	public String getCalculationErrorDesc()
+	{
+		return calculationErrorDesc;
+	}
+	
+	public CalculationResponse(double calculationResult_, String calculationErrorDesc_)
+	{
+		calculationResult = calculationResult_;
+		calculationErrorDesc = calculationErrorDesc_;
+	}
 }

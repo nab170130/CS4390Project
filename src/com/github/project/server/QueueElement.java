@@ -1,6 +1,6 @@
 package com.github.project.server;
 
-import java.net.Socket;
+import java.io.ObjectOutputStream;
 
 import com.github.project.core.CalculationRequest;
 
@@ -15,9 +15,9 @@ import com.github.project.core.CalculationRequest;
  */
 public class QueueElement
 {
-	private CalculationRequest request;	// The attached CalculationRequest
-	private Socket requestingSocket;	// The attached Socket that received the CalculationRequest above
-	private QueueElement next;			// The next element in the queue
+	private CalculationRequest request;			// The attached CalculationRequest
+	private ObjectOutputStream sendingStream;	// The attached ObjectOutputStream to use in response messages
+	private QueueElement next;					// The next element in the queue
 	
 	/**
 	 * This method returns the CalculationRequest object encapsulated in this QueueElement object
@@ -30,13 +30,14 @@ public class QueueElement
 	}
 	
 	/**
-	 * This method returns the Socket object that received the encapsulated CalculationRequest object
+	 * This method returns the ObjectOutputStream object to which the calculation response should be 
+	 * written
 	 * 
 	 * @return The Socket that received the encapsulated CalculationRequest object
 	 */
-	public Socket getRequestingSocket()
+	public ObjectOutputStream getSendingStream()
 	{
-		return requestingSocket;
+		return sendingStream;
 	}
 	
 	/**
@@ -66,9 +67,9 @@ public class QueueElement
 	 * @param request_ The CalculationRequest object to encapsulate
 	 * @param requestingSocket_ The Socket object to encapsulate
 	 */
-	public QueueElement(CalculationRequest request_, Socket requestingSocket_)
+	public QueueElement(CalculationRequest request_, ObjectOutputStream sendingStream_)
 	{
 		request = request_;
-		requestingSocket = requestingSocket_;
+		sendingStream = sendingStream_;
 	}
 }

@@ -3,6 +3,8 @@ package com.github.project.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
 import com.github.project.core.CalculationRequest;
@@ -29,11 +31,14 @@ public class ConnectionHandler implements Runnable
 	{
 		ProcessingQueue processingQueue = ProcessingQueue.getInstance();
 		ObjectInputStream requestReader = null;
+		ObjectOutputStream responseWriter = null;
 		
 		try
 		{
 			InputStream socketInputStream = connectionSocket.getInputStream();
 			requestReader = new ObjectInputStream(socketInputStream);
+			OutputStream socketOutputStream = connectionSocket.getOutputStream();
+			responseWriter = new ObjectOutputStream(socketOutputStream);
 		}
 		catch(IOException ex)
 		{
@@ -46,7 +51,7 @@ public class ConnectionHandler implements Runnable
 			try
 			{
 				CalculationRequest receivedRequest = (CalculationRequest) requestReader.readObject();
-				processingQueue.addToQueue(receivedRequest, connectionSocket);
+				processingQueue.addToQueue(receivedRequest, responseWriter);
 			}
 			catch(ClassNotFoundException ex)
 			{
@@ -61,6 +66,7 @@ public class ConnectionHandler implements Runnable
 		try
 		{
 			requestReader.close();
+			responseWriter.close();
 		}
 		catch(IOException ex)
 		{

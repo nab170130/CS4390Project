@@ -1,8 +1,12 @@
 package com.github.project.server;
 
-import java.net.Socket;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+
+import org.mariuszgromada.math.mxparser.Expression;
 
 import com.github.project.core.CalculationRequest;
+import com.github.project.core.CalculationResponse;
 
 /**
  * This class implements the FIFO processing queue of the server. It is 
@@ -38,10 +42,10 @@ public class ProcessingQueue implements Runnable
 	 * @param request The CalculationRequest object to add and process in the queue
 	 * @param requestingSocket The Socket object that received the CalculationRequest object
 	 */
-	public synchronized void addToQueue(CalculationRequest request, Socket requestingSocket)
+	public synchronized void addToQueue(CalculationRequest request, ObjectOutputStream sendingStream)
 	{
 		// Create the QueueElement object, put it as the next element of the tail, and update the tail pointer
-		QueueElement addRequestQueueElement = new QueueElement(request, requestingSocket);
+		QueueElement addRequestQueueElement = new QueueElement(request, sendingStream);
 		queueTail.setNext(addRequestQueueElement);
 		queueTail = addRequestQueueElement;
 		
@@ -67,7 +71,21 @@ public class ProcessingQueue implements Runnable
 		}
 		
 		// Process the request
-		System.out.print(queueHead.getItem().getRawRequest());
+		CalculationRequest toProcess = queueHead.getItem();
+		Expression parseExpression = new Expression(toProcess.getRawRequest());
+		double expressionResult = parseExpression.calculate();
+		
+		// Create CalculationResponse message and attempt to send response
+		CalculationResponse toSend = new CalculationResponse(expressionResult, parseExpression.getErrorMessage());
+		ObjectOutputStream outputStream = queueHead.getSendingStream();
+		
+		try
+		{
+			outputStream.writeObject(toSend);
+		}
+		catch(IOException ex)
+		{
+		}
 		
 		// Remove the processed request from the queue
 		QueueElement nextQueueHead = queueHead.getNextQueueElement();
@@ -92,7 +110,8 @@ public class ProcessingQueue implements Runnable
 			{
 				try
 				{
-					synchronized(this) {
+					synchronized(this) 
+					{
 						wait();
 					}
 				}
