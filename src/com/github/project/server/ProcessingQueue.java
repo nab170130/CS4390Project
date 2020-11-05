@@ -1,12 +1,8 @@
 package com.github.project.server;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-
 import org.mariuszgromada.math.mxparser.Expression;
 
 import com.github.project.core.CalculationRequest;
-import com.github.project.core.CalculationResponse;
 
 /**
  * This class implements the FIFO processing queue of the server. It is 
@@ -40,12 +36,12 @@ public class ProcessingQueue implements Runnable
 	 * method at the same time.
 	 * 
 	 * @param request The CalculationRequest object to add and process in the queue
-	 * @param requestingSocket The Socket object that received the CalculationRequest object
+	 * @param requestingHandler The ConnectionHandler object that received the CalculationRequest object
 	 */
-	public synchronized void addToQueue(CalculationRequest request, ObjectOutputStream sendingStream)
+	public synchronized void addToQueue(CalculationRequest request, ConnectionHandler requestingHandler)
 	{
 		// Create the QueueElement object, put it as the next element of the tail, and update the tail pointer
-		QueueElement addRequestQueueElement = new QueueElement(request, sendingStream);
+		QueueElement addRequestQueueElement = new QueueElement(request, requestingHandler);
 		queueTail.setNext(addRequestQueueElement);
 		queueTail = addRequestQueueElement;
 		
@@ -75,17 +71,9 @@ public class ProcessingQueue implements Runnable
 		Expression parseExpression = new Expression(toProcess.getRawRequest());
 		double expressionResult = parseExpression.calculate();
 		
-		// Create CalculationResponse message and attempt to send response
-		CalculationResponse toSend = new CalculationResponse(expressionResult, parseExpression.getErrorMessage());
-		ObjectOutputStream outputStream = queueHead.getSendingStream();
-		
-		try
-		{
-			outputStream.writeObject(toSend);
-		}
-		catch(IOException ex)
-		{
-		}
+		// Create CalculationResponse message and send response
+		ConnectionHandler requestingHandler = queueHead.getRequestingHandler();
+		requestingHandler.sendCalculationResponse(expressionResult, parseExpression.getErrorMessage());
 		
 		// Remove the processed request from the queue
 		QueueElement nextQueueHead = queueHead.getNextQueueElement();

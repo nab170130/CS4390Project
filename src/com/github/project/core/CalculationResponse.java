@@ -1,16 +1,14 @@
 package com.github.project.core;
 
-import java.io.Serializable;
-
 /**
- * This class implements the response message of the application layer communication 
+ * This class implements the calculation response message of the application layer communication 
  * protocol. It is used by the server and client to send and receive calculation results.
  * 
  * @author Nathan Beck
  * @version 1.0
  * @since 31 October 2020
  */
-public class CalculationResponse implements Serializable
+public class CalculationResponse extends Response
 {
 	public static final long serialVersionUID = 1L;
 	
@@ -27,8 +25,9 @@ public class CalculationResponse implements Serializable
 		return calculationErrorDesc;
 	}
 	
-	public CalculationResponse(double calculationResult_, String calculationErrorDesc_)
+	public CalculationResponse(ResponseCode responseCode_, double calculationResult_, String calculationErrorDesc_)
 	{
+		super(responseCode_);
 		calculationResult = calculationResult_;
 		calculationErrorDesc = calculationErrorDesc_;
 	}

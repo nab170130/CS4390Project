@@ -1,12 +1,10 @@
 package com.github.project.server;
 
-import java.io.ObjectOutputStream;
-
 import com.github.project.core.CalculationRequest;
 
 /**
  * This class implements an element of the generic queue structure. Here, 
- * the CalculationRequest object and the Socket that received it are held 
+ * the CalculationRequest object and the ConnectionHandler that received it are held 
  * in each element of the queue.
  * 
  * @author Nathan Beck
@@ -15,9 +13,9 @@ import com.github.project.core.CalculationRequest;
  */
 public class QueueElement
 {
-	private CalculationRequest request;			// The attached CalculationRequest
-	private ObjectOutputStream sendingStream;	// The attached ObjectOutputStream to use in response messages
-	private QueueElement next;					// The next element in the queue
+	private CalculationRequest request;				// The attached CalculationRequest
+	private ConnectionHandler requestingHandler;	// The attached ConnectionHandler to use in response messages
+	private QueueElement next;						// The next element in the queue
 	
 	/**
 	 * This method returns the CalculationRequest object encapsulated in this QueueElement object
@@ -30,14 +28,14 @@ public class QueueElement
 	}
 	
 	/**
-	 * This method returns the ObjectOutputStream object to which the calculation response should be 
+	 * This method returns the ConnectionHandler object to which the calculation response should be 
 	 * written
 	 * 
-	 * @return The Socket that received the encapsulated CalculationRequest object
+	 * @return The ConnectionHandler that received the encapsulated CalculationRequest object
 	 */
-	public ObjectOutputStream getSendingStream()
+	public ConnectionHandler getRequestingHandler()
 	{
-		return sendingStream;
+		return requestingHandler;
 	}
 	
 	/**
@@ -62,14 +60,14 @@ public class QueueElement
 	
 	/**
 	 * Creates a QueueElement object that contains the CalculationRequest object to 
-	 * be processed and the Socket object that received it.
+	 * be processed and the ConnectionHandler object that received it.
 	 * 
 	 * @param request_ The CalculationRequest object to encapsulate
-	 * @param requestingSocket_ The Socket object to encapsulate
+	 * @param requestingHandler_ The ConnectionHandler object to encapsulate
 	 */
-	public QueueElement(CalculationRequest request_, ObjectOutputStream sendingStream_)
+	public QueueElement(CalculationRequest request_, ConnectionHandler requestingHandler_)
 	{
 		request = request_;
-		sendingStream = sendingStream_;
+		requestingHandler = requestingHandler_;
 	}
 }
