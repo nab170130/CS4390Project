@@ -89,7 +89,7 @@ public class ProcessingQueue implements Runnable
 	 * in the queue. It resumes when requests are added to the queue.
 	 */
 	public void run()
-	{
+	{	
 		// Perform these actions until server is terminated
 		while(true)
 		{

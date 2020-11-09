@@ -45,8 +45,12 @@ public class ConnectionHandler implements Runnable
 	 */
 	public void run()
 	{	
+		Logger logger = Logger.getInstance();
+		
 		// Wait for and accept username information
 		initializeApplicationLayerConnection();
+		
+		logger.connectionHandlerLog(connectionID, username, "Established application-layer connection");
 		
 		// Get the processing queue for queueing of requests
 		ProcessingQueue processingQueue = ProcessingQueue.getInstance();
@@ -70,11 +74,20 @@ public class ConnectionHandler implements Runnable
 				// Determine which message was received
 				if(receivedMessage instanceof CalculationRequest)
 				{
+					CalculationRequest calcRequest = (CalculationRequest) receivedMessage;
+					
+					StringBuilder builder = new StringBuilder();
+					builder.append("Received calculation request: ");
+					builder.append(calcRequest.getRawRequest());
+					logger.connectionHandlerLog(connectionID, username, builder.toString());
+					
 					// Add calculation requests to the processing queue
 					processingQueue.addToQueue((CalculationRequest) receivedMessage, this);
 				}
 				else if(receivedMessage instanceof ConnectionTerminateRequest)
 				{
+					logger.connectionHandlerLog(connectionID, username, "Received request to terminate. Sending acknowledgement...");
+					
 					// Acknowledge the terminate request and prepare for connection finalization
 					ConnectionTerminateResponse okResponse = new ConnectionTerminateResponse(ResponseCode.OK);
 					sendResponse(okResponse);
@@ -83,6 +96,8 @@ public class ConnectionHandler implements Runnable
 			}
 			catch(Exception ex)
 			{
+				logger.connectionHandlerLog(connectionID, username, "Received bad request message");
+				
 				// Send a generic response indicating poor reception
 				Response poorReceptionResponse = new Response(ResponseCode.BAD_REQUEST);
 				sendResponse(poorReceptionResponse);
@@ -94,7 +109,7 @@ public class ConnectionHandler implements Runnable
 		{
 			return;
 		}
-
+		
 		// Neatly finalize the app-layer connection
 		finalizeConnection();
 	}
@@ -163,12 +178,15 @@ public class ConnectionHandler implements Runnable
 	 */
 	private void sendResponse(Response response)
 	{
+		Logger logger = Logger.getInstance();
+		
 		try
 		{
 			oos.writeObject(response);
 		}
 		catch(IOException ex)
 		{
+			logger.connectionHandlerLog(connectionID, username, "Underlying TCP connection failed. Killing handler...");
 			connectionState = ApplicationLayerConnectionState.KILLED;
 		}
 	}
@@ -180,6 +198,9 @@ public class ConnectionHandler implements Runnable
 	 */
 	private void finalizeConnection()
 	{
+		Logger logger = Logger.getInstance();
+		logger.connectionHandlerLog(connectionID, username, "Finalizing connection...");
+		
 		connectionState = ApplicationLayerConnectionState.FINALIZED;
 		
 		try
@@ -194,6 +215,8 @@ public class ConnectionHandler implements Runnable
 		// Keep the connection open until the client ends TCP. Busy waits 
 		// as the connection should terminate quickly.
 		while(connectionSocket.isConnected());
+		
+		logger.connectionHandlerLog(connectionID, username, "Client terminated connection succesfully");
 	}
 	
 	/**

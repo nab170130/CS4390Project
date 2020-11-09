@@ -9,7 +9,7 @@ package com.github.project.core;
  * @version 1.0
  * @since 31 October 2020
  */
-public class ConnectionTerminateRequest 
+public class ConnectionTerminateRequest extends Request
 {
-
+	public static final long serialVersionUID = 1L;
 }
