@@ -203,18 +203,25 @@ public class ConnectionHandler implements Runnable
 		
 		connectionState = ApplicationLayerConnectionState.FINALIZED;
 		
+		// Keep the connection open until the client ends TCP. Busy waits 
+		// as the connection should terminate quickly.
+		try
+		{
+			while(ois.readObject() != null);
+		}
+		catch(Exception ex)
+		{
+		}
+			
 		try
 		{
 			ois.close();
 			oos.close();
+			connectionSocket.close();
 		}
 		catch(IOException ex)
 		{
 		}
-		
-		// Keep the connection open until the client ends TCP. Busy waits 
-		// as the connection should terminate quickly.
-		while(connectionSocket.isConnected());
 		
 		logger.connectionHandlerLog(connectionID, username, "Client terminated connection succesfully");
 	}
