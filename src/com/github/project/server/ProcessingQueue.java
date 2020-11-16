@@ -1,6 +1,6 @@
 package com.github.project.server;
 
-import java.net.Socket;
+import org.mariuszgromada.math.mxparser.Expression;
 
 import com.github.project.core.CalculationRequest;
 
@@ -36,12 +36,12 @@ public class ProcessingQueue implements Runnable
 	 * method at the same time.
 	 * 
 	 * @param request The CalculationRequest object to add and process in the queue
-	 * @param requestingSocket The Socket object that received the CalculationRequest object
+	 * @param requestingHandler The ConnectionHandler object that received the CalculationRequest object
 	 */
-	public synchronized void addToQueue(CalculationRequest request, Socket requestingSocket)
+	public synchronized void addToQueue(CalculationRequest request, ConnectionHandler requestingHandler)
 	{
 		// Create the QueueElement object, put it as the next element of the tail, and update the tail pointer
-		QueueElement addRequestQueueElement = new QueueElement(request, requestingSocket);
+		QueueElement addRequestQueueElement = new QueueElement(request, requestingHandler);
 		queueTail.setNext(addRequestQueueElement);
 		queueTail = addRequestQueueElement;
 		
@@ -67,7 +67,13 @@ public class ProcessingQueue implements Runnable
 		}
 		
 		// Process the request
-		System.out.print(queueHead.getItem().getRawRequest());
+		CalculationRequest toProcess = queueHead.getItem();
+		Expression parseExpression = new Expression(toProcess.getRawRequest());
+		double expressionResult = parseExpression.calculate();
+		
+		// Create CalculationResponse message and send response
+		ConnectionHandler requestingHandler = queueHead.getRequestingHandler();
+		requestingHandler.sendCalculationResponse(expressionResult, parseExpression.getErrorMessage());
 		
 		// Remove the processed request from the queue
 		QueueElement nextQueueHead = queueHead.getNextQueueElement();
@@ -83,7 +89,7 @@ public class ProcessingQueue implements Runnable
 	 * in the queue. It resumes when requests are added to the queue.
 	 */
 	public void run()
-	{
+	{	
 		// Perform these actions until server is terminated
 		while(true)
 		{
@@ -92,7 +98,10 @@ public class ProcessingQueue implements Runnable
 			{
 				try
 				{
-					wait();
+					synchronized(this) 
+					{
+						wait();
+					}
 				}
 				catch(InterruptedException ex)
 				{
