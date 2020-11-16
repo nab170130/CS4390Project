@@ -26,24 +26,35 @@ public class MathServerMain
 	 */
 	public static void main(String[] args)
 	{
+		// Assert arguments and return if unsuccessful
 		if(!assertArguments(args))
 		{
 			return;
 		}
 		
+		// Bind logger output and return if unsuccessful
 		if(!bindLoggerOutput(args[1]))
 		{
 			return;
 		}
 		
+		// Launch the processing queue thread and begin accepting connections on provided port
 		launchProcessingQueueThread();
 		acceptRequestConnections(new Integer(args[0]));
 	}
 	
+	/**
+	 * Binds the logger output to the provided text file path
+	 * 
+	 * @param path The provided text file path to bind the Logger
+	 * @return Whether or not the bind was successful
+	 */
 	private static boolean bindLoggerOutput(String path)
 	{
+		// Get the singleton instance
 		Logger logger = Logger.getInstance();
 		
+		// Bind the output; log error if unsuccessful
 		try
 		{
 			logger.bindOutput(path);
@@ -57,18 +68,27 @@ public class MathServerMain
 		return true;
 	}
 	
+	/**
+	 * Validates the command-line arguments
+	 * 
+	 * @param args The command-line arguments (0: port, 1: text file path)
+	 * @return Whether or not the command-line arguments are valid
+	 */
 	private static boolean assertArguments(String[] args)
 	{
+		// Get the singleton instance and specify lower and upper port number bounds
 		Logger logger = Logger.getInstance();
 		int lowerPortRange = 1024;
 		int upperPortRange = 65536;
 		
+		// Log error if there is not enough command-line args
 		if(args.length < 2)
 		{
 			logger.serverLog("Insufficient arguments");
 			return false;
 		}
 		
+		// Attempt to parse port number; log error if unsuccessful
 		Integer portNumber = null;
 		
 		try
@@ -81,6 +101,7 @@ public class MathServerMain
 			return false;
 		}
 		
+		// Log error if port number is out of valid range
 		if(portNumber < lowerPortRange || portNumber >= upperPortRange)
 		{
 			logger.serverLog("Server port in bad range");
@@ -100,6 +121,7 @@ public class MathServerMain
 		Thread processingQueueThread = new Thread(instance);
 		processingQueueThread.start();
 		
+		// Log the start of the thread
 		Logger logger = Logger.getInstance();
 		logger.serverLog("Processing queue thread launched");
 	}
@@ -112,6 +134,7 @@ public class MathServerMain
 	 */
 	private static void acceptRequestConnections(int serverPort)
 	{
+		// Get singleton instance of Logger
 		Logger logger = Logger.getInstance();
 		
 		// Attempt to create a ServerSocket object on which to receive requests.
@@ -127,6 +150,7 @@ public class MathServerMain
 			return;
 		}
 		
+		// Log the opening of the ServerSocket
 		try
 		{
 			StringBuilder builder = new StringBuilder();

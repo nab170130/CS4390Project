@@ -14,13 +14,26 @@ public class Response implements Serializable
 {
 	public static final long serialVersionUID = 1L;
 	
+	/**
+	 * The response code of this Response object
+	 */
 	private ResponseCode responseCode;
 	
+	/**
+	 * Returns the response code of this Response object.
+	 * 
+	 * @return
+	 */
 	public ResponseCode getResponseCode()
 	{
 		return responseCode;
 	}
 	
+	/**
+	 * Creates a new Response object with the provided ResponseCode.
+	 * 
+	 * @param responseCode_ The ResponseCode of this new object.
+	 */
 	public Response(ResponseCode responseCode_)
 	{
 		responseCode = responseCode_;
