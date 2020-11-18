@@ -28,11 +28,11 @@ clean:
 	rm -f client.jar
 	rm -f server.jar
 
-client.jar: $(CORE_BIN) $(CLIENT_BIN) $(CBD)manifest.mf
-	jar -cvfm client.jar $(CBD)manifest.mf -C target/classes com/github/project/core -C target/classes com/github/project/client
+client.jar: $(CORE_BIN) $(CLIENT_BIN) $(CBD)manifest.txt
+	jar -cvfm client.jar $(CBD)manifest.txt -C target/classes com/github/project/core -C target/classes com/github/project/client
 
-server.jar: $(SERVER_BIN) $(CORE_BIN) $(SBD)manifest.mf
-	jar -cvfm server.jar $(SBD)manifest.mf -C target/classes com/github/project/core -C target/classes com/github/project/server -C target/classes org
+server.jar: $(SERVER_BIN) $(CORE_BIN) $(SBD)manifest.txt
+	jar -cvfm server.jar $(SBD)manifest.txt -C target/classes com/github/project/core -C target/classes com/github/project/server -C target/classes org
 
 $(CORE_BIN): $(COBD)%.class : $(COSD)%.java
 	javac $< -cp src/ -d target/classes
